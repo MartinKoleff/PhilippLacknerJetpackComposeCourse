@@ -13,7 +13,9 @@
 .externalNativeBuild
 .cxx
 local.properties
-
-# Project exclude paths
-/app/
-/gradle/
+app/build/intermediates/apk/androidTest/debug/output-metadata.json
+*.apk
+*.json
+*.bin
+*.xml
+*.flat
