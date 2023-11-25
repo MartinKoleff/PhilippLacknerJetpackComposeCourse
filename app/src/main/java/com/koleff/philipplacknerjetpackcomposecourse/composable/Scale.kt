@@ -63,7 +63,7 @@ fun Scale(
         .pointerInput(true) {
             detectDragGestures(
                 onDragStart = { offset ->
-                    dragStartedAngle = DegreeUtils.toRadian(
+                    dragStartedAngle = DegreeUtils.toDegree(
                         -atan2(
                             circleCenter.x - offset.x,
                             circleCenter.y - offset.y
@@ -74,7 +74,7 @@ fun Scale(
                     oldAngle = angle
                 }
             ) { change, _ ->
-                val touchAngle = DegreeUtils.toRadian(
+                val touchAngle = DegreeUtils.toDegree(
                     -atan2(
                         circleCenter.x - change.position.x,
                         circleCenter.y - change.position.y
