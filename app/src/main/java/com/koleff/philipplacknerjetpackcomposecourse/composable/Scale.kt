@@ -2,6 +2,7 @@ package com.koleff.philipplacknerjetpackcomposecourse.composable
 
 import android.graphics.Color
 import android.graphics.Paint
+import androidx.compose.ui.graphics.Path
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -12,11 +13,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.withRotation
 import com.koleff.philipplacknerjetpackcomposecourse.model.LineType
 import com.koleff.philipplacknerjetpackcomposecourse.model.ScaleStyle
-import kotlin.math.PI
+import com.koleff.philipplacknerjetpackcomposecourse.utils.DegreeUtils
+import kotlin.math.abs
 import kotlin.math.cos
-import kotlin.math.max
 import kotlin.math.sin
 
 @Composable
@@ -74,8 +76,9 @@ fun Scale(
         }
 
         //Drawing weight lines
-        for(i in minWeight..maxWeight){
-            val angleInRad = (i - initialWeight + angle - 90) * (PI / 180f).toFloat() //Polar coordinates
+        for (i in minWeight..maxWeight) {
+            val angleInRad =
+                DegreeUtils.toRadian(i - initialWeight + angle - 90) //Polar coordinates
 
             val lineType = when {
                 i % 10 == 0 -> LineType.TenStepLine
@@ -83,13 +86,13 @@ fun Scale(
                 else -> LineType.NormalLine
             }
 
-            val lineLength = when (lineType){
+            val lineLength = when (lineType) {
                 LineType.NormalLine -> scaleStyle.normalLineLength.toPx()
                 LineType.FiveStepLine -> scaleStyle.fiveStepLineLength.toPx()
                 LineType.TenStepLine -> scaleStyle.tenStepLineLength.toPx()
             }
 
-            val lineColor = when (lineType){
+            val lineColor = when (lineType) {
                 LineType.NormalLine -> scaleStyle.normalLineColor
                 LineType.FiveStepLine -> scaleStyle.fiveStepLineColor
                 LineType.TenStepLine -> scaleStyle.tenStepLineColor
@@ -105,11 +108,66 @@ fun Scale(
                 y = outerRadius * sin(angleInRad) + circleCenter.y
             )
 
+            //Drawing numbers and rotating them based on angle
+            drawContext.canvas.nativeCanvas.apply {
+                if (lineType == LineType.TenStepLine) {
+                    val textRadius =
+                        outerRadius - lineLength - 5.dp.toPx() - scaleStyle.textSize.toPx()
+                    val x = textRadius * cos(angleInRad) + circleCenter.x
+                    val y = textRadius * sin(angleInRad) + circleCenter.y
+
+                    withRotation(
+                        degrees = DegreeUtils.toRadian(angleInRad) + 90f,
+                        pivotX = x,
+                        pivotY = y
+                    ) {
+                        drawText(
+                            abs(i).toString(),
+                            x,
+                            y,
+                            Paint().apply {
+                                textSize = scaleStyle.textSize.toPx()
+                                textAlign = Paint.Align.CENTER
+                            }
+                        )
+                    }
+                }
+            }
+
+            //Drawing scale weight lines
             drawLine(
                 color = lineColor,
                 start = lineStart,
                 end = lineEnd,
                 strokeWidth = 1.dp.toPx()
+            )
+
+            //Drawing scale indicator
+            val middlePoint = Offset(
+                x = circleCenter.x,
+                y = circleCenter.y - innerRadius - scaleStyle.scaleIndicatorLength.toPx()
+            )
+
+            val bottomLeftPoint = Offset(
+                x = circleCenter.x - 5f,
+                y = circleCenter.y - innerRadius
+            )
+
+            val bottomRightPoint = Offset(
+                x = circleCenter.x + 5f,
+                y = circleCenter.y - innerRadius
+            )
+
+            val indicator = Path().apply {
+                moveTo(middlePoint.x, middlePoint.y)
+                lineTo(bottomLeftPoint.x, bottomLeftPoint.y)
+                lineTo(bottomRightPoint.x, bottomRightPoint.y)
+                lineTo(middlePoint.x, middlePoint.y)
+            }
+
+            drawPath(
+                path = indicator,
+                color = scaleStyle.scaleIndicatorColor
             )
         }
     }
