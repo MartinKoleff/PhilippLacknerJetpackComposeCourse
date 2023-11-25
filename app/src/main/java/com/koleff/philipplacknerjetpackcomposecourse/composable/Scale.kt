@@ -163,7 +163,7 @@ fun Scale(
                     val y = textRadius * sin(angleInRad) + circleCenter.y
 
                     withRotation(
-                        degrees = DegreeUtils.toRadian(angleInRad) + 90f,
+                        degrees = DegreeUtils.toRadian(angleInRad + 90f),
                         pivotX = x,
                         pivotY = y
                     ) {
