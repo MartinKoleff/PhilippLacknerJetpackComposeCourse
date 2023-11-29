@@ -3,6 +3,7 @@ package com.koleff.philipplacknerjetpackcomposecourse.composable
 import android.graphics.Color
 import android.graphics.Paint
 import android.os.Build
+import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
@@ -12,12 +13,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.koleff.philipplacknerjetpackcomposecourse.model.ClockStyle
+import com.koleff.philipplacknerjetpackcomposecourse.model.LineType
+import com.koleff.philipplacknerjetpackcomposecourse.utils.DegreeUtils
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.math.cos
+import kotlin.math.sin
 
 @RequiresApi(Build.VERSION_CODES.O)
 val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
@@ -33,15 +40,33 @@ fun Clock(
         mutableStateOf(currentTime)
     }
 
+    var hours: Float by remember {
+        mutableStateOf(time.split(":")[0].toFloat())
+    }
+
+    var minutes: Float by remember {
+        mutableStateOf(time.split(":")[1].toFloat())
+    }
+
+    var seconds: Float by remember {
+        mutableStateOf(time.split(":")[2].toFloat())
+    }
+
     //When currentTime updates -> update time...
     LaunchedEffect(key1 = currentTime) {
         time = currentTime
+        hours = time.split(":")[0].toFloat()
+        minutes = time.split(":")[1].toFloat()
+        seconds = time.split(":")[2].toFloat()
     }
 
     Canvas(modifier = modifier) {
 
         //Draw circle
         drawContext.canvas.nativeCanvas.apply {
+            val circleCenter = center
+            val outerRadius = clockStyle.clockRadius.toPx()
+
             drawCircle(
                 center.x,
                 center.y,
@@ -59,6 +84,7 @@ fun Clock(
                 }
             )
 
+            //Timer display
             drawText(
                 time,
                 center.x,
@@ -113,6 +139,72 @@ fun Clock(
                     strokeWidth = 1.dp.toPx()
                 )
             }
+
+            val secondsAngleInRadian = DegreeUtils.toRadian(seconds * 6 + 90)
+
+            val secondsLineStart = Offset(
+                x = circleCenter.x,
+                y = circleCenter.y
+            )
+
+            val secondsLineEnd = Offset(
+                x = (clockStyle.arrowLength.toPx() - (outerRadius - clockStyle.hourLineLength.toPx()))
+                        * cos(secondsAngleInRadian) + circleCenter.x,
+                y = (clockStyle.arrowLength.toPx() - (outerRadius - clockStyle.hourLineLength.toPx()))
+                        * sin(secondsAngleInRadian) + circleCenter.y
+            )
+
+            //Drawing clock seconds arrow
+            drawLine(
+                color = clockStyle.secondsArrowColor,
+                start = secondsLineStart,
+                end = secondsLineEnd,
+                strokeWidth = 1.dp.toPx()
+            )
+
+            val minutesAngleInRadian = DegreeUtils.toRadian(minutes * 6 + 90)
+
+            val minutesLineStart = Offset(
+                x = circleCenter.x,
+                y = circleCenter.y
+            )
+
+            val minutesLineEnd = Offset(
+                x = (clockStyle.arrowLength.toPx() - (outerRadius - clockStyle.hourLineLength.toPx()))
+                        * cos(minutesAngleInRadian) + circleCenter.x,
+                y = (clockStyle.arrowLength.toPx() - (outerRadius - clockStyle.hourLineLength.toPx()))
+                        * sin(minutesAngleInRadian) + circleCenter.y
+            )
+
+            //Drawing clock minutes arrow
+            drawLine(
+                color = clockStyle.minutesLineColor,
+                start = minutesLineStart,
+                end = minutesLineEnd,
+                strokeWidth = 1.dp.toPx()
+            )
+
+            val hoursAngleInRadian = DegreeUtils.toRadian(hours * 30 + 90) //if 24 hour lines are shown -> * 15. 360 / 12 parts = 15. Add 90 degrees to point at the top (points left if not added)
+
+            val hoursLineStart = Offset(
+                x = circleCenter.x,
+                y = circleCenter.y
+            )
+
+            val hoursLineEnd = Offset(
+                x = (clockStyle.arrowLength.toPx() - (outerRadius - clockStyle.hourLineLength.toPx()))
+                        * cos(hoursAngleInRadian) + circleCenter.x,
+                y = (clockStyle.arrowLength.toPx() - (outerRadius - clockStyle.hourLineLength.toPx()))
+                        * sin(hoursAngleInRadian) + circleCenter.y
+            )
+
+            //Drawing clock hours arrow
+            drawLine(
+                color = clockStyle.hoursArrowColor,
+                start = hoursLineStart,
+                end = hoursLineEnd,
+                strokeWidth = 1.dp.toPx()
+            )
         }
     }
 }
