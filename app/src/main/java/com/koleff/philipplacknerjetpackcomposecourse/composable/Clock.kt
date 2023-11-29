@@ -14,6 +14,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -140,71 +142,38 @@ fun Clock(
                 )
             }
 
-            val secondsAngleInRadian = DegreeUtils.toRadian(seconds * 6 + 90)
+            // Seconds arrow
+            rotate(degrees = seconds * (360f / 60f)) {
+                drawLine(
+                    color = clockStyle.secondsArrowColor,
+                    start = center,
+                    end = Offset(center.x, center.y + clockStyle.arrowLength.toPx()),
+                    strokeWidth = 2.dp.toPx(),
+                    cap = StrokeCap.Round
+                )
+            }
 
-            val secondsLineStart = Offset(
-                x = circleCenter.x,
-                y = circleCenter.y
-            )
+            // Minutes arrow
+            rotate(degrees = minutes * (360f / 60f)) {
+                drawLine(
+                    color = clockStyle.minutesArrowColor,
+                    start = center,
+                    end = Offset(center.x,center.y + clockStyle.arrowLength.toPx()),
+                    strokeWidth = 3.dp.toPx(),
+                    cap = StrokeCap.Round
+                )
+            }
 
-            val secondsLineEnd = Offset(
-                x = (clockStyle.arrowLength.toPx() - (outerRadius - clockStyle.hourLineLength.toPx()))
-                        * cos(secondsAngleInRadian) + circleCenter.x,
-                y = (clockStyle.arrowLength.toPx() - (outerRadius - clockStyle.hourLineLength.toPx()))
-                        * sin(secondsAngleInRadian) + circleCenter.y
-            )
-
-            //Drawing clock seconds arrow
-            drawLine(
-                color = clockStyle.secondsArrowColor,
-                start = secondsLineStart,
-                end = secondsLineEnd,
-                strokeWidth = 1.dp.toPx()
-            )
-
-            val minutesAngleInRadian = DegreeUtils.toRadian(minutes * 6 + 90)
-
-            val minutesLineStart = Offset(
-                x = circleCenter.x,
-                y = circleCenter.y
-            )
-
-            val minutesLineEnd = Offset(
-                x = (clockStyle.arrowLength.toPx() - (outerRadius - clockStyle.hourLineLength.toPx()))
-                        * cos(minutesAngleInRadian) + circleCenter.x,
-                y = (clockStyle.arrowLength.toPx() - (outerRadius - clockStyle.hourLineLength.toPx()))
-                        * sin(minutesAngleInRadian) + circleCenter.y
-            )
-
-            //Drawing clock minutes arrow
-            drawLine(
-                color = clockStyle.minutesLineColor,
-                start = minutesLineStart,
-                end = minutesLineEnd,
-                strokeWidth = 1.dp.toPx()
-            )
-
-            val hoursAngleInRadian = DegreeUtils.toRadian(hours * 30 + 90) //if 24 hour lines are shown -> * 15. 360 / 12 parts = 15. Add 90 degrees to point at the top (points left if not added)
-
-            val hoursLineStart = Offset(
-                x = circleCenter.x,
-                y = circleCenter.y
-            )
-
-            val hoursLineEnd = Offset(
-                x = (clockStyle.arrowLength.toPx() - (outerRadius - clockStyle.hourLineLength.toPx()))
-                        * cos(hoursAngleInRadian) + circleCenter.x,
-                y = (clockStyle.arrowLength.toPx() - (outerRadius - clockStyle.hourLineLength.toPx()))
-                        * sin(hoursAngleInRadian) + circleCenter.y
-            )
-
-            //Drawing clock hours arrow
-            drawLine(
-                color = clockStyle.hoursArrowColor,
-                start = hoursLineStart,
-                end = hoursLineEnd,
-                strokeWidth = 1.dp.toPx()
-            )
+            // Hours arrow
+            rotate(degrees = hours * (360f / 12f)) {
+                drawLine(
+                    color = clockStyle.hoursArrowColor,
+                    start = center,
+                    end = Offset(center.x, center.y + clockStyle.arrowLength.toPx()),
+                    strokeWidth = 4.dp.toPx(),
+                    cap = StrokeCap.Round
+                )
+            }
         }
     }
 }
