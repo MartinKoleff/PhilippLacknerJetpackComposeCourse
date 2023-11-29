@@ -69,6 +69,50 @@ fun Clock(
                     textAlign = Paint.Align.CENTER
                 }
             )
+
+            //TODO: Clock lines for hours and minutes (5 for minutes and 1 hour) | Angle -> 360 / 12 (hours) | minutes -> 360 / 48 | Overall 360 / 60 ?
+            for (i in 0..clockStyle.minuteLinesPerHour * clockStyle.totalHours) {
+                val lineType: LineType = when {
+                    i % 5 == 0 -> LineType.Hour
+                    else -> LineType.Minute
+                }
+
+                val lineLength = when (lineType) {
+                    LineType.Minute -> {
+                        clockStyle.minuteLineLength.toPx()
+                    }
+
+                    LineType.Hour -> {
+                        clockStyle.hourLineLength.toPx()
+                    }
+                }
+
+                val lineColor = when (lineType) {
+                    LineType.Minute -> clockStyle.minutesLineColor
+                    LineType.Hour -> clockStyle.hoursLineColor
+                }
+
+                val angleInRadian = DegreeUtils.toRadian((i * 6).toFloat())
+
+                val lineStart = Offset(
+                    x = (outerRadius - lineLength) * cos(angleInRadian) + circleCenter.x,
+                    y = (outerRadius - lineLength) * sin(angleInRadian) + circleCenter.y
+                )
+
+                val lineEnd = Offset(
+                    x = outerRadius * cos(angleInRadian) + circleCenter.x,
+                    y = outerRadius * sin(angleInRadian) + circleCenter.y
+                )
+
+
+                //Drawing clock time lines
+                drawLine(
+                    color = lineColor,
+                    start = lineStart,
+                    end = lineEnd,
+                    strokeWidth = 1.dp.toPx()
+                )
+            }
         }
     }
 }
