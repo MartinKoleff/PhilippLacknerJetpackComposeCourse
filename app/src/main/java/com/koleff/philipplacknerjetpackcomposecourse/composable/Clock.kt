@@ -143,7 +143,7 @@ fun Clock(
             }
 
             // Seconds arrow
-            rotate(degrees = seconds * (360f / 60f)) {
+            rotate(degrees = seconds * (360f / 60f) + 180) {
                 drawLine(
                     color = clockStyle.secondsArrowColor,
                     start = center,
@@ -154,7 +154,7 @@ fun Clock(
             }
 
             // Minutes arrow
-            rotate(degrees = minutes * (360f / 60f)) {
+            rotate(degrees = minutes * (360f / 60f) + 180) {
                 drawLine(
                     color = clockStyle.minutesArrowColor,
                     start = center,
@@ -165,7 +165,7 @@ fun Clock(
             }
 
             // Hours arrow
-            rotate(degrees = hours * (360f / 12f)) {
+            rotate(degrees = hours * (360f / 12f) + 180) {
                 drawLine(
                     color = clockStyle.hoursArrowColor,
                     start = center,
